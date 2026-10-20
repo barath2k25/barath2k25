@@ -1,6 +1,6 @@
-<div align="center">
+ <div align="center">
 
-<img src="./assets/banner.svg" alt="Barath S banner" width="100%"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,100:39d353&height=200&section=header&text=BARATH%20S&fontColor=39d353&fontSize=55&animation=fadeIn&fontAlignY=38&desc=Full-Stack%20Developer%20Intern%20%7C%20Backend%20Engineering%20%7C%20IT%20Student&descSize=16&descAlignY=60" width="100%" alt="header"/>
 
 <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&pause=1200&color=39D353&center=true&vCenter=true&width=650&lines=Building+reliable+applications;Java+%7C+React+%7C+Node+%7C+Cloud+%26+DevOps;Learning+system+design+every+day;Senior+Dev+%E2%86%92+Solution+Architect" alt="Typing animation"/>
 
