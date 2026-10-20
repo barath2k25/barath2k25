@@ -1,55 +1,46 @@
 
-<h1 align="center">Hi, I'm Barath 👋</h1>
-<h3 align="center">IT Student | Full-Stack Developer Intern | Backend Engineering</h3>
+<div align="center">
 
-<p align="center">
-  <img src="https://komarev.com/ghpvc/?username=barath2k25&label=Profile%20Views&color=0e75b6&style=flat" alt="Profile views" />
-</p>
+# Hi, I'm Barath 👋
+
+**Full-Stack Developer Intern | Backend Engineering | IT Student**
+
+Building reliable applications and learning system design.
+
+</div>
+
+<img align="right" width="130" src="https://raw.githubusercontent.com/Sabarinathan07/Sabarinathan07/main/assets/Git.gif" alt="Animated Octocat" />
+
+### About Me
+
+- 💻 Full-stack development and backend APIs
+- ⚙️ Exploring microservices, testing and debugging
+- ☁️ Learning cloud and DevOps
+- 🎯 Focused on engineering fundamentals
+
+<br clear="right"/>
 
 ---
 
-### 👨‍💻 About Me
-
-- 🎓 Information Technology student
-- 💼 Currently working as a Full-Stack Developer Intern at Zuke
-- ⚙️ Interested in backend engineering, APIs, and microservices
-- 🧪 Learning software testing, debugging, and system design
-- ☁️ Exploring cloud technologies and DevOps
-- 🎯 Focused on building reliable, scalable applications
-
-### 🛠️ Technologies
+### 🛠️ Tech Stack
 
 <p>
-  <img src="https://skillicons.dev/icons?i=java,js,ts,nodejs,react,html,css,postgres,docker,git,github,aws&perline=6" alt="Technology icons" />
+<img src="https://skillicons.dev/icons?i=java,js,ts,nodejs,react,html,css,postgres,docker,git,github,aws" alt="Tech stack"/>
 </p>
+
+---
 
 ### 📊 GitHub Statistics
 
 <p align="center">
-  <img height="165" src="https://github-readme-stats.vercel.app/api?username=barath2k25&show_icons=true&theme=tokyonight&hide_border=true" alt="GitHub statistics" />
-  <img height="165" src="https://github-readme-stats.vercel.app/api/top-langs/?username=barath2k25&layout=compact&theme=tokyonight&hide_border=true" alt="Most used languages" />
+  <img width="49%" src="https://github-readme-stats.vercel.app/api?username=barath2k25&show_icons=true&theme=tokyonight&hide_border=true&hide_title=true" alt="GitHub stats"/>
+  <img width="49%" src="https://github-readme-stats.vercel.app/api/top-langs/?username=barath2k25&layout=compact&theme=tokyonight&hide_border=true" alt="Top languages"/>
 </p>
 
 <p align="center">
-  <img src="https://streak-stats.demolab.com?user=barath2k25&theme=tokyonight&hide_border=true" alt="GitHub contribution streak" />
+  <img width="80%" src="https://streak-stats.demolab.com/?user=barath2k25&theme=dark&hide_border=true" alt="Contribution streak"/>
 </p>
-
-### 🚀 Featured Projects
-
-- **InvestTrack** — Personal investment tracking dashboard
-- **Zuke** — Full-stack development and microservices experience
-- **Other Projects** — Explore my repositories below
-
-### 🤝 Connect With Me
-
-<p>
-  <a href="https://github.com/barath2k25">
-    <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
-  </a>
-</p>
-
----
 
 <p align="center">
-  <i>Building skills through consistent learning and practical projects.</i>
+  <img src="https://komarev.com/ghpvc/?username=barath2k25&style=flat-square&color=blue" alt="Profile views"/>
 </p>
