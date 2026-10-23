@@ -14,7 +14,6 @@
 - ⚙️ Exploring microservices, testing and debugging
 - ☁️ Learning cloud and DevOps
 - 🎯 Focused on engineering fundamentals
-- 📍 Chennai, India
 
 <br clear="right"/>
 
