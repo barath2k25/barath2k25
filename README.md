@@ -8,7 +8,7 @@
 
 <img align="right" width="170" src="./assets/ironman.gif" alt="Iron Man" />
 
-### 👨‍💻 About Me!
+### 👨‍💻 About Me:
 
 - 💻 Full-stack development and backend APIs
 - ⚙️ Exploring microservices, testing and debugging
