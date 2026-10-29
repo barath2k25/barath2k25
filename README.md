@@ -13,7 +13,6 @@
 - 💻 Full-stack development and backend APIs
 - ⚙️ Exploring microservices, testing and debugging
 - ☁️ Learning cloud and DevOps
-- 🎯 Focused on engineering fundamentals.
 
 <br clear="right"/>
 
