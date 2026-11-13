@@ -10,10 +10,10 @@
 
 ### 👨‍💻 About Me :
 
+- 🧑🏻‍💻 specialised in prompt engineering 
 - 💻 Full-stack development and backend APIs
 - ⚙️ Exploring microservices, testing and debugging
 - ☁️ Currently into cloud and DevOps
-- 🧑🏻‍💻 specialised in prompt engineering
 
 <br clear="right"/>
 
