@@ -1,205 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300" width="100%" role="img" aria-label="Barath S - Full-Stack Developer">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 900 240" width="100%">
 <defs>
-  <!-- palette: hot-rod red #e62429 / gold #ffc83d / arc blue #7df9ff -->
-  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0" stop-color="#0b0e14"/>
-    <stop offset="1" stop-color="#0d1117"/>
-  </linearGradient>
-  <pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse">
-    <path d="M25 0H0V25" fill="none" stroke="#ffffff" stroke-opacity="0.035"/>
-  </pattern>
-  <filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="38"/></filter>
-  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-    <feGaussianBlur stdDeviation="4" result="b"/>
-    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-  </filter>
-  <filter id="softglow" x="-50%" y="-50%" width="200%" height="200%">
-    <feGaussianBlur stdDeviation="2" result="b"/>
-    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-  </filter>
-  <!-- liquid glass refraction -->
-  <filter id="refract" x="-10%" y="-10%" width="120%" height="120%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.008 0.012" numOctaves="2" seed="7" result="n">
-      <animate attributeName="baseFrequency" values="0.008 0.012;0.011 0.008;0.008 0.012" dur="14s" repeatCount="indefinite"/>
-    </feTurbulence>
-    <feDisplacementMap in="SourceGraphic" in2="n" scale="60" xChannelSelector="R" yChannelSelector="G" result="d"/>
-    <feGaussianBlur in="d" stdDeviation="6"/>
-  </filter>
-  <radialGradient id="reactorGlow" cx="50%" cy="50%" r="50%">
-    <stop offset="0" stop-color="#7df9ff" stop-opacity="0.55"/>
-    <stop offset="0.5" stop-color="#38e1ff" stop-opacity="0.15"/>
-    <stop offset="1" stop-color="#38e1ff" stop-opacity="0"/>
-  </radialGradient>
-  <radialGradient id="core" cx="50%" cy="50%" r="50%">
-    <stop offset="0" stop-color="#ffffff"/>
-    <stop offset="0.45" stop-color="#bff9ff"/>
-    <stop offset="1" stop-color="#38e1ff"/>
-  </radialGradient>
-  <linearGradient id="housing" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0" stop-color="#5b6573"/>
-    <stop offset="0.5" stop-color="#1c2330"/>
-    <stop offset="1" stop-color="#3a4250"/>
-  </linearGradient>
-  <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="#fff1b8"/>
-    <stop offset="0.45" stop-color="#ffc83d"/>
-    <stop offset="1" stop-color="#e09a00"/>
-  </linearGradient>
-  <linearGradient id="glassFill" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="#ffffff" stop-opacity="0.13"/>
-    <stop offset="0.5" stop-color="#ffffff" stop-opacity="0.05"/>
-    <stop offset="1" stop-color="#ffffff" stop-opacity="0.08"/>
-  </linearGradient>
-  <linearGradient id="glassEdge" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0" stop-color="#ffffff" stop-opacity="0.65"/>
-    <stop offset="0.35" stop-color="#ffffff" stop-opacity="0.08"/>
-    <stop offset="0.7" stop-color="#ffc83d" stop-opacity="0.15"/>
-    <stop offset="1" stop-color="#e62429" stop-opacity="0.55"/>
-  </linearGradient>
-  <linearGradient id="specular" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="#ffffff" stop-opacity="0.28"/>
-    <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-  </linearGradient>
-  <linearGradient id="sheen" x1="0" y1="0" x2="1" y2="0">
-    <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
-    <stop offset="0.5" stop-color="#ffffff" stop-opacity="0.16"/>
-    <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-  </linearGradient>
-  <linearGradient id="divider" x1="0" y1="0" x2="1" y2="0">
-    <stop offset="0" stop-color="#e62429"/>
-    <stop offset="0.5" stop-color="#ffc83d"/>
-    <stop offset="1" stop-color="#ffc83d" stop-opacity="0"/>
-  </linearGradient>
-  <linearGradient id="frame" x1="0" y1="0" x2="1" y2="0">
-    <stop offset="0" stop-color="#e62429" stop-opacity="0.7"/>
-    <stop offset="0.5" stop-color="#ffc83d" stop-opacity="0.35"/>
-    <stop offset="1" stop-color="#e62429" stop-opacity="0.7"/>
-  </linearGradient>
-  <linearGradient id="scan" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="#7df9ff" stop-opacity="0"/>
-    <stop offset="1" stop-color="#7df9ff" stop-opacity="0.18"/>
-  </linearGradient>
-  <clipPath id="card"><rect x="320" y="38" width="645" height="224" rx="26"/></clipPath>
-  <clipPath id="banner"><rect width="1000" height="300" rx="16"/></clipPath>
-
-  <!-- coloured light that sits behind the glass -->
-  <g id="lights">
-    <circle cx="430" cy="70" r="120" fill="#e62429" opacity="0.75">
-      <animate attributeName="cx" values="430;560;430" dur="12s" repeatCount="indefinite"/>
-      <animate attributeName="cy" values="70;110;70" dur="9s" repeatCount="indefinite"/>
-    </circle>
-    <circle cx="840" cy="230" r="130" fill="#ffc83d" opacity="0.38">
-      <animate attributeName="cx" values="840;720;840" dur="14s" repeatCount="indefinite"/>
-      <animate attributeName="cy" values="230;190;230" dur="10s" repeatCount="indefinite"/>
-    </circle>
-    <circle cx="930" cy="40" r="90" fill="#b3121f" opacity="0.7">
-      <animate attributeName="cy" values="40;90;40" dur="11s" repeatCount="indefinite"/>
-    </circle>
-    <circle cx="170" cy="150" r="110" fill="#38e1ff" opacity="0.45"/>
-  </g>
+<rect id="a" width="14" height="14" rx="3" fill="#0e4429"/>
+<rect id="b" width="14" height="14" rx="3" fill="#006d32"/>
+<rect id="c" width="14" height="14" rx="3" fill="#26a641"/>
+<rect id="d" width="14" height="14" rx="3" fill="#39d353"/>
+<pattern id="g" width="20" height="20" patternUnits="userSpaceOnUse"><rect width="14" height="14" rx="3" fill="#161b22"/></pattern>
+<pattern id="p0" width="200" height="180" patternUnits="userSpaceOnUse" patternTransform="translate(0)"><use href="#d" x="0" y="120"/><use href="#c" x="20" y="0"/><use href="#a" x="20" y="20"/><use href="#a" x="40" y="0"/><use href="#b" x="40" y="20"/><use href="#b" x="40" y="120"/><use href="#a" x="60" y="40"/><use href="#c" x="60" y="100"/><use href="#a" x="60" y="120"/><use href="#b" x="80" y="60"/><use href="#d" x="80" y="100"/><use href="#b" x="80" y="160"/><use href="#a" x="100" y="20"/><use href="#d" x="100" y="60"/><use href="#b" x="100" y="100"/><use href="#d" x="100" y="140"/><use href="#b" x="120" y="0"/><use href="#b" x="120" y="40"/><use href="#c" x="120" y="140"/><use href="#b" x="140" y="0"/><use href="#b" x="140" y="80"/><use href="#c" x="140" y="100"/><use href="#c" x="140" y="120"/><use href="#b" x="160" y="0"/><use href="#c" x="160" y="40"/><use href="#b" x="180" y="0"/><use href="#b" x="180" y="40"/><use href="#b" x="180" y="80"/><use href="#a" x="180" y="160"/></pattern>
+<pattern id="p1" width="200" height="180" patternUnits="userSpaceOnUse" patternTransform="translate(60)"><use href="#a" x="0" y="0"/><use href="#d" x="0" y="40"/><use href="#d" x="0" y="60"/><use href="#a" x="0" y="100"/><use href="#d" x="0" y="120"/><use href="#a" x="20" y="60"/><use href="#d" x="20" y="80"/><use href="#b" x="20" y="120"/><use href="#b" x="40" y="20"/><use href="#a" x="40" y="140"/><use href="#a" x="60" y="60"/><use href="#c" x="60" y="160"/><use href="#a" x="120" y="0"/><use href="#a" x="140" y="0"/><use href="#a" x="140" y="40"/><use href="#a" x="140" y="60"/><use href="#a" x="140" y="140"/><use href="#b" x="160" y="0"/><use href="#d" x="160" y="120"/><use href="#d" x="160" y="160"/><use href="#b" x="180" y="40"/><use href="#d" x="180" y="120"/></pattern>
+<pattern id="p2" width="200" height="180" patternUnits="userSpaceOnUse" patternTransform="translate(120)"><use href="#a" x="0" y="0"/><use href="#b" x="0" y="40"/><use href="#d" x="0" y="60"/><use href="#b" x="0" y="80"/><use href="#a" x="20" y="100"/><use href="#c" x="40" y="80"/><use href="#b" x="40" y="100"/><use href="#a" x="40" y="160"/><use href="#d" x="60" y="100"/><use href="#a" x="60" y="120"/><use href="#b" x="80" y="0"/><use href="#c" x="80" y="20"/><use href="#b" x="80" y="120"/><use href="#d" x="80" y="140"/><use href="#d" x="80" y="160"/><use href="#a" x="100" y="0"/><use href="#a" x="100" y="160"/><use href="#d" x="120" y="0"/><use href="#d" x="140" y="0"/><use href="#a" x="140" y="60"/><use href="#a" x="140" y="80"/><use href="#c" x="140" y="120"/><use href="#c" x="180" y="100"/></pattern>
+<radialGradient id="f" cx="50%" cy="50%" r="60%"><stop offset="0" stop-color="#0d1117" stop-opacity="0.9"/><stop offset="1" stop-color="#0d1117" stop-opacity="0.2"/></radialGradient>
+<linearGradient id="s" x1="0" x2="1"><stop offset="0" stop-color="#39d353" stop-opacity="0"/><stop offset="0.5" stop-color="#39d353" stop-opacity="0.3"/><stop offset="1" stop-color="#39d353" stop-opacity="0"/></linearGradient>
+<filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 </defs>
-
-<g clip-path="url(#banner)">
-  <rect width="1000" height="300" fill="url(#bg)"/>
-  <rect width="1000" height="300" fill="url(#grid)"/>
-  <use href="#lights" filter="url(#blur)"/>
-
-  <!-- ================= ARC REACTOR ================= -->
-  <g transform="translate(170 150)">
-    <circle r="125" fill="url(#reactorGlow)">
-      <animate attributeName="opacity" values="0.7;1;0.7" dur="3s" repeatCount="indefinite"/>
-    </circle>
-    <!-- outer tick ring -->
-    <circle r="104" fill="none" stroke="#7df9ff" stroke-opacity="0.35" stroke-width="6" stroke-dasharray="2 6.17"/>
-    <!-- metal housing -->
-    <circle r="92" fill="#0d1117" stroke="url(#housing)" stroke-width="8"/>
-    <circle r="86" fill="none" stroke="#7df9ff" stroke-opacity="0.25" stroke-width="1"/>
-    <!-- copper coil segments -->
-    <g filter="url(#softglow)">
-      <circle r="72" fill="none" stroke="#7df9ff" stroke-width="16" stroke-dasharray="36.2 9" opacity="0.9">
-        <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="24s" repeatCount="indefinite"/>
-      </circle>
-    </g>
-    <circle r="72" fill="none" stroke="#0d1117" stroke-opacity="0.55" stroke-width="2"/>
-    <!-- inner dashed ring -->
-    <circle r="52" fill="none" stroke="#bff9ff" stroke-width="2" stroke-dasharray="3 7" opacity="0.8">
-      <animateTransform attributeName="transform" type="rotate" from="360" to="0" dur="10s" repeatCount="indefinite"/>
-    </circle>
-    <circle r="44" fill="#0a1a22" stroke="url(#housing)" stroke-width="4"/>
-    <!-- core -->
-    <circle r="30" fill="url(#core)" filter="url(#glow)">
-      <animate attributeName="r" values="29;32;29" dur="2.2s" repeatCount="indefinite"/>
-    </circle>
-    <circle r="12" fill="#ffffff" opacity="0.9"/>
-  </g>
-
-  <!-- ================= LIQUID GLASS CARD ================= -->
-  <g clip-path="url(#card)">
-    <!-- refracted light through the glass -->
-    <use href="#lights" filter="url(#refract)" opacity="0.55"/>
-    <rect x="320" y="38" width="645" height="224" fill="#0d1117" opacity="0.35"/>
-    <rect x="320" y="38" width="645" height="224" fill="url(#glassFill)"/>
-    <!-- top specular highlight -->
-    <path d="M320 38H965V96Q640 70 320 104Z" fill="url(#specular)"/>
-    <!-- moving sheen -->
-    <polygon points="0,38 90,38 30,262 -60,262" fill="url(#sheen)">
-      <animateTransform attributeName="transform" type="translate" values="240 0;1100 0" dur="6s" repeatCount="indefinite"/>
-    </polygon>
-  </g>
-  <rect x="320.75" y="38.75" width="643.5" height="222.5" rx="25.5" fill="none" stroke="url(#glassEdge)" stroke-width="1.5"/>
-  <rect x="323" y="41" width="639" height="218" rx="23" fill="none" stroke="#ffffff" stroke-opacity="0.06"/>
-
-  <!-- card content -->
-  <g font-family="SFMono-Regular,Consolas,Menlo,'Courier New',monospace" font-size="12" letter-spacing="3" fill="#7df9ff">
-    <circle cx="364" cy="76" r="4" fill="#7df9ff" filter="url(#softglow)">
-      <animate attributeName="opacity" values="1;0.2;1" dur="1.6s" repeatCount="indefinite"/>
-    </circle>
-    <text x="376" y="80">SYSTEMS ONLINE</text>
-    <text x="925" y="80" text-anchor="end" fill="#ffc83d" fill-opacity="0.8">PWR 100%</text>
-  </g>
-
-  <text x="358" y="148" font-family="'Arial Black','Segoe UI Black','Helvetica Neue',Arial,sans-serif" font-weight="900" font-size="64" letter-spacing="6" fill="url(#gold)" filter="url(#softglow)">BARATH S</text>
-
-  <rect x="360" y="164" width="330" height="2" fill="url(#divider)"/>
-
-  <text x="360" y="194" font-family="'Segoe UI',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="600" letter-spacing="0.6" fill="#e6edf3">Full-Stack Developer <tspan fill="#e62429">|</tspan> Backend Engineering <tspan fill="#e62429">|</tspan> IT Student</text>
-
-  <!-- tech chips -->
-  <g font-family="SFMono-Regular,Consolas,Menlo,'Courier New',monospace" font-size="11" font-weight="700" letter-spacing="1.5" text-anchor="middle">
-    <g transform="translate(360 214)">
-      <rect width="62" height="26" rx="13" fill="#ffffff" fill-opacity="0.06" stroke="#ffc83d" stroke-opacity="0.6"/>
-      <text x="31" y="17" fill="#ffc83d">JAVA</text>
-    </g>
-    <g transform="translate(432 214)">
-      <rect width="70" height="26" rx="13" fill="#ffffff" fill-opacity="0.06" stroke="#ffc83d" stroke-opacity="0.6"/>
-      <text x="35" y="17" fill="#ffc83d">REACT</text>
-    </g>
-    <g transform="translate(512 214)">
-      <rect width="86" height="26" rx="13" fill="#ffffff" fill-opacity="0.06" stroke="#ffc83d" stroke-opacity="0.6"/>
-      <text x="43" y="17" fill="#ffc83d">NODE.JS</text>
-    </g>
-    <g transform="translate(608 214)">
-      <rect width="70" height="26" rx="13" fill="#ffffff" fill-opacity="0.06" stroke="#e62429" stroke-opacity="0.8"/>
-      <text x="35" y="17" fill="#ff6b6f">CLOUD</text>
-    </g>
-    <g transform="translate(688 214)">
-      <rect width="78" height="26" rx="13" fill="#ffffff" fill-opacity="0.06" stroke="#e62429" stroke-opacity="0.8"/>
-      <text x="39" y="17" fill="#ff6b6f">DEVOPS</text>
-    </g>
-  </g>
-
-  <!-- HUD corner brackets -->
-  <g fill="none" stroke="#ffc83d" stroke-width="2" stroke-opacity="0.7">
-    <path d="M14 44V14H44"/>
-    <path d="M956 14H986V44"/>
-    <path d="M14 256V286H44"/>
-    <path d="M956 286H986V256"/>
-  </g>
-
-  <!-- scan line -->
-  <rect x="0" y="-40" width="1000" height="40" fill="url(#scan)">
-    <animate attributeName="y" values="-40;300" dur="5s" repeatCount="indefinite"/>
-  </rect>
-</g>
-<rect x="0.75" y="0.75" width="998.5" height="298.5" rx="15.5" fill="none" stroke="url(#frame)" stroke-width="1.5"/>
+<rect width="900" height="240" rx="12" fill="#0d1117"/>
+<rect width="900" height="240" fill="url(#g)"/>
+<rect width="900" height="240" fill="url(#p0)"><animate attributeName="opacity" values="0.1;1;0.1" dur="4s" begin="-0s" repeatCount="indefinite"/></rect>
+<rect width="900" height="240" fill="url(#p1)"><animate attributeName="opacity" values="0.1;1;0.1" dur="5s" begin="-1.5s" repeatCount="indefinite"/></rect>
+<rect width="900" height="240" fill="url(#p2)"><animate attributeName="opacity" values="0.1;1;0.1" dur="6.5s" begin="-3s" repeatCount="indefinite"/></rect>
+<rect width="900" height="240" rx="12" fill="url(#f)"/>
+<rect width="160" height="240" fill="url(#s)"><animate attributeName="x" values="-160;900" dur="5s" repeatCount="indefinite"/></rect>
+<text x="450" y="112" text-anchor="middle" font-family="Courier New,monospace" font-size="46" font-weight="bold" fill="#39d353" filter="url(#glow)">BARATH S</text>
+<text x="450" y="150" text-anchor="middle" font-family="Courier New,monospace" font-size="16" fill="#c9d1d9">Full-Stack Developer | Backend Engineering | IT Student</text>
+<rect x="1" y="1" width="898" height="238" rx="12" fill="none" stroke="#26a641" stroke-opacity="0.5"/>
 </svg>
