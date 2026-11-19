@@ -2,7 +2,7 @@
 
 <img src="./assets/banner.svg" width="100%" alt="Barath S banner"/>
 
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&pause=1200&color=39D353&center=true&vCenter=true&width=650&lines=Building+reliable+applications;Java+%7C+React+%7C+Node+%7C+Cloud+%26+DevOps;Learning+system+design+every+day;Senior+Dev+%E2%86%92+Solution+Architect" alt="Typing animation"/>
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&pause=1200&color=39D353&center=true&vCenter=true&width=650&lines=Building+reliable+applications;Java+%7C+React+%7C+Node+%7C+Cloud+%26+DevOps" alt="Typing animation"/>
 
 </div>
 
