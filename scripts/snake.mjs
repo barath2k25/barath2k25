@@ -1,15 +1,19 @@
 #!/usr/bin/env node
-// Egg Snake — renders the GitHub contribution calendar as white eggs and a
-// green snake that eats every egg, growing one segment per egg.
+// Egg Snake — renders the GitHub contribution calendar as eggs (white, or gold
+// on the busiest days) and a green snake that hunts them down, growing one
+// segment per egg.
 //
 // Usage: node scripts/snake.mjs <github-user> <out-dir>
 // Uses GITHUB_TOKEN (GraphQL) when set, otherwise the public contributions page.
+// Each run rebuilds the grid from the live calendar, so new contribution days
+// become new eggs.
 //
-// Route: the snake sweeps the grid column by column, left to right. Columns
-// holding eggs are walked end to end (down, then up the next one, ...);
-// empty columns are crossed along the top or bottom row. Every move enters a
-// cell the snake has never visited, so it can never run into its own body no
-// matter how long it grows. validate() re-checks this frame by frame.
+// Route: the snake chases the nearest egg in any direction. Before committing
+// to an egg it simulates the trip and checks it can still reach its own tail
+// afterwards (so it never traps itself); if not, it follows its tail until a
+// safe egg opens up. Should that ever fail to finish, it falls back to a
+// column-by-column sweep that never revisits a cell and so cannot collide.
+// validate() re-checks the final route frame by frame either way.
 
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -21,20 +25,22 @@ const PAD = 16; // outer padding
 const START_LEN = 3; // snake length before eating anything
 const STEP = 0.1; // seconds per move
 const PAUSE = 16; // steps between the snake leaving and the loop restarting
+const GOLD_LEVEL = 4; // GitHub's darkest green = gold egg
 
+const GOLD = ["#fff6cc", "#ffc83d", "#c98a00"];
 const THEMES = {
   dark: {
     empty: "#161b22",
-    eggs: [null, "#c9d1d9", "#dde3e9", "#eef1f4", "#ffffff"],
-    eggStroke: "none",
+    eggs: [null, "#c9d1d9", "#dde3e9", "#eef1f4", GOLD],
+    eggStroke: [null, "none", "none", "none", "none"],
     head: "#39d353",
     tail: "#196c2e",
     eye: "#0d1117",
   },
   light: {
     empty: "#ebedf0",
-    eggs: [null, "#eef1f4", "#f6f8fa", "#fbfcfd", "#ffffff"],
-    eggStroke: "#8c959f",
+    eggs: [null, "#eef1f4", "#f6f8fa", "#fbfcfd", GOLD],
+    eggStroke: [null, "#8c959f", "#8c959f", "#8c959f", "#b07800"],
     head: "#2da44e",
     tail: "#116329",
     eye: "#ffffff",
@@ -44,6 +50,9 @@ const THEMES = {
 // Egg outline centred on (0,0): 10 wide, 12.5 tall, narrower at the top.
 const EGG =
   "M0-6.4C3.2-6.4 5-1.6 5 1.6 5 4.4 2.8 6.1 0 6.1-2.8 6.1-5 4.4-5 1.6-5-1.6-3.2-6.4 0-6.4Z";
+
+const DIRS = [[1, 0], [0, 1], [-1, 0], [0, -1]];
+const key = (c, r) => `${c},${r}`;
 
 // ---------------------------------------------------------------- data
 
@@ -84,25 +93,146 @@ async function loadCells(user) {
   const token = process.env.GITHUB_TOKEN;
   if (token) {
     try {
-      return await fromGraphQL(user, token);
+      const cells = await fromGraphQL(user, token);
+      console.log("source: GraphQL");
+      return cells;
     } catch (err) {
       console.warn(`${err.message}\nFalling back to the public contributions page.`);
     }
   }
+  console.log("source: contributions page");
   return fromHTML(user);
 }
 
-// ---------------------------------------------------------------- route
+// ---------------------------------------------------------------- routes
+// A route is the list of head positions P. The body at step t is the last
+// len(t) head positions, so the tail stays put on the step an egg is eaten.
+// Every route starts at P[0] = (-2,-2), P[1] = (-1,0) (off-grid, top-left)
+// and ends with the head stepping off the right edge.
 
-function plan(cells) {
-  const minCol = Math.min(...cells.map((c) => c.col));
-  cells = cells.map((c) => ({ ...c, col: c.col - minCol }));
-  const W = Math.max(...cells.map((c) => c.col)) + 1;
-  const key = (c, r) => `${c},${r}`;
-  const eggs = new Map(cells.filter((c) => c.level > 0).map((c) => [key(c.col, c.row), c]));
-  const colHasEgg = Array.from({ length: W }, (_, c) => cells.some((x) => x.col === c && x.level > 0));
+class Snake {
+  constructor(W, eggKeys) {
+    this.W = W;
+    this.P = [[-2, -2], [-1, 0]];
+    this.len = START_LEN;
+    this.left = new Set(eggKeys);
+  }
+  clone() {
+    const s = Object.create(Snake.prototype);
+    s.W = this.W;
+    s.P = this.P.slice(-(this.len + 1));
+    s.len = this.len;
+    s.left = new Set(this.left);
+    return s;
+  }
+  get head() {
+    return this.P[this.P.length - 1];
+  }
+  onGrid([c, r]) {
+    return c >= 0 && c < this.W && r >= 0 && r < ROWS;
+  }
+  // grid cells the body occupies after the next move (tail leaves unless eating)
+  blocked(eating) {
+    const body = this.P.slice(-this.len);
+    const stays = eating || this.P.length < this.len ? body : body.slice(1);
+    return new Set(stays.filter((p) => this.onGrid(p)).map((p) => key(...p)));
+  }
+  tail() {
+    return this.P.length >= this.len ? this.P[this.P.length - this.len] : null;
+  }
+  legal(n, allowExit = false) {
+    const inside = this.onGrid(n) || (allowExit && n[0] === this.W && n[1] >= 0 && n[1] < ROWS);
+    return inside && !this.blocked(this.left.has(key(...n))).has(key(...n));
+  }
+  move(n) {
+    this.P.push(n);
+    if (this.left.delete(key(...n))) this.len++;
+  }
+  // BFS from the head; body cells (except the tail) are walls.
+  bfs(isTarget, allowExit = false) {
+    const walls = this.blocked(false);
+    const start = this.head;
+    const prev = new Map([[key(...start), null]]);
+    const queue = [start];
+    while (queue.length) {
+      const cur = queue.shift();
+      for (const [dc, dr] of DIRS) {
+        const n = [cur[0] + dc, cur[1] + dr];
+        const k = key(...n);
+        if (prev.has(k)) continue;
+        const exitCell = allowExit && n[0] === this.W && n[1] >= 0 && n[1] < ROWS;
+        if (!this.onGrid(n) && !exitCell) continue;
+        if (walls.has(k)) continue;
+        prev.set(k, cur);
+        if (isTarget(n)) {
+          const path = [];
+          for (let p = n; p !== start; p = prev.get(key(...p))) path.unshift(p);
+          return path;
+        }
+        if (!exitCell) queue.push(n);
+      }
+    }
+    return null;
+  }
+  // can the head still find its way to its own tail?
+  safe() {
+    const t = this.tail();
+    if (!t || !this.onGrid(t)) return true; // still entering: wide open
+    return this.bfs((n) => n[0] === t[0] && n[1] === t[1]) !== null;
+  }
+  // walk a path; false if any step is illegal
+  follow(path, allowExit = false) {
+    for (const n of path) {
+      if (!this.legal(n, allowExit)) return false;
+      this.move(n);
+    }
+    return true;
+  }
+  // one step that keeps the tail reachable, preferring the longest way round
+  stall(allowExit = false) {
+    const options = DIRS.map(([dc, dr]) => [this.head[0] + dc, this.head[1] + dr])
+      .filter((n) => this.legal(n, allowExit))
+      .map((n) => {
+        const sim = this.clone();
+        sim.move(n);
+        const t = sim.tail();
+        const toTail = t && sim.onGrid(t) ? sim.bfs((m) => m[0] === t[0] && m[1] === t[1]) : [];
+        return { n, ok: toTail !== null, d: toTail ? toTail.length : -1 };
+      })
+      .sort((a, b) => b.ok - a.ok || b.d - a.d);
+    if (!options.length) return false;
+    this.move(options[0].n);
+    return true;
+  }
+}
 
-  // Enter from above-left (off the grid) so the loop seam is never visible.
+function huntRoute(W, eggKeys) {
+  const s = new Snake(W, eggKeys);
+  s.move([0, 0]);
+  let budget = Math.round(W * ROWS * 2.5); // give up on hunting if it would drag the loop out
+  while (s.left.size) {
+    if (--budget < 0) return null;
+    const path = s.bfs((n) => s.left.has(key(...n)));
+    if (path) {
+      const sim = s.clone();
+      if (sim.follow(path) && sim.safe()) {
+        s.follow(path);
+        continue;
+      }
+    }
+    if (!s.stall()) return null;
+  }
+  while (s.head[0] !== W) {
+    if (--budget < 0) return null;
+    const path = s.bfs((n) => n[0] === W, true);
+    if (path && s.legal(path[0], true)) s.move(path[0]);
+    else if (!s.stall(true)) return null;
+  }
+  return s.P;
+}
+
+// Fallback: sweep columns left to right, never revisiting a cell.
+function sweepRoute(W, colHasEgg) {
   const P = [[-2, -2], [-1, 0]];
   let r = 0;
   for (let c = 0; c < W; c++) {
@@ -117,7 +247,25 @@ function plan(cells) {
       r = end;
     }
   }
-  const N = P.length; // steps until the head leaves the grid
+  P.push([W, r]);
+  return P;
+}
+
+function plan(cells, route) {
+  const minCol = Math.min(...cells.map((c) => c.col));
+  cells = cells.map((c) => ({ ...c, col: c.col - minCol }));
+  const W = Math.max(...cells.map((c) => c.col)) + 1;
+  const eggs = new Map(cells.filter((c) => c.level > 0).map((c) => [key(c.col, c.row), c]));
+
+  let P;
+  if (route === "hunt") P = huntRoute(W, eggs.keys());
+  const used = P ? "hunt" : "sweep";
+  if (!P) {
+    const colHasEgg = Array.from({ length: W }, (_, c) => cells.some((x) => x.col === c && x.level > 0));
+    P = sweepRoute(W, colHasEgg);
+  }
+  P = P.slice();
+  const N = P.length; // head has left the grid at P[N-1]
 
   const eatStep = new Map(); // egg key -> step at which the head reaches it
   P.forEach(([c, y], t) => {
@@ -129,9 +277,9 @@ function plan(cells) {
   const F = N + maxLen + PAUSE; // frames per loop: tail must be fully off-grid before the seam
 
   // Walk off to the right, then hop above the grid to meet P[0] off-screen.
-  let x = W;
-  while (P.length < F - 1) P.push([x++, r]);
-  P.push([x, -2]);
+  let [x, r] = P[N - 1];
+  while (P.length < F - 1) P.push([++x, r]);
+  P.push([x + 1, -2]);
 
   const lenAt = new Array(F);
   let len = START_LEN;
@@ -143,10 +291,10 @@ function plan(cells) {
   // step at which segment i first exists
   const bornAt = Array.from({ length: maxLen }, (_, i) => lenAt.findIndex((l) => l > i));
 
-  return { W, cells, eggs, eatStep, P, N, F, lenAt, bornAt, maxLen, key };
+  return { W, cells, eggs, eatStep, P, N, F, lenAt, bornAt, maxLen, used };
 }
 
-function validate({ W, eggs, eatStep, P, F, lenAt, maxLen, key }) {
+function validate({ W, eggs, eatStep, P, F, lenAt, maxLen }) {
   const onGrid = ([c, r]) => c >= 0 && c < W && r >= 0 && r < ROWS;
   for (const k of eggs.keys()) if (!eatStep.has(k)) throw new Error(`egg ${k} is never eaten`);
   for (let t = 0; t < F; t++) {
@@ -181,7 +329,7 @@ function mix(a, b, t) {
 }
 
 function render(p, theme) {
-  const { W, cells, eggs, eatStep, P, F, bornAt, maxLen, key } = p;
+  const { W, cells, eggs, eatStep, P, F, bornAt, maxLen } = p;
   const T = (F * STEP).toFixed(2);
   const width = W * PITCH + PAD * 2 - (PITCH - CELL);
   const height = ROWS * PITCH + PAD * 2 - (PITCH - CELL);
@@ -199,6 +347,7 @@ function render(p, theme) {
   css.push(`@keyframes m{${frames.join("")}}`);
   css.push(`.s{animation:m ${T}s linear infinite}`);
   css.push(`.e{animation-duration:${T}s;animation-timing-function:linear;animation-iteration-count:infinite}`);
+  css.push(`@keyframes shine{0%,100%{opacity:.25}50%{opacity:.7}}.glow{animation:shine 2.4s ease-in-out infinite}`);
 
   // Eggs vanish as the head arrives and grow back during the pause.
   const eggEls = [];
@@ -210,9 +359,14 @@ function render(p, theme) {
         `${pct(t + 0.05, F)},${pct(F - PAUSE / 2, F)}{opacity:0;transform:scale(0)}` +
         `100%{opacity:1;transform:scale(1)}}`
     );
+    const gold = c.level >= GOLD_LEVEL;
+    const glow = gold ? `<ellipse class="glow" rx="7.5" ry="8.5" fill="#ffc83d" filter="url(#blur)"/>` : "";
+    const stroke = theme.eggStroke[c.level];
     eggEls.push(
       `<g transform="translate(${px(c.col) + CELL / 2} ${px(c.row) + CELL / 2})">` +
-        `<path class="e" style="animation-name:e${j}" d="${EGG}" fill="url(#g${c.level})"/></g>`
+        `<g class="e" style="animation-name:e${j}">${glow}` +
+        `<path d="${EGG}" fill="url(#g${c.level})"${stroke === "none" ? "" : ` stroke="${stroke}" stroke-width="0.8"`}/>` +
+        `</g></g>`
     );
     j++;
   }
@@ -236,11 +390,13 @@ function render(p, theme) {
   }
 
   const gradients = theme.eggs
-    .map((col, lvl) =>
-      col
-        ? `<radialGradient id="g${lvl}" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="${col}"/></radialGradient>`
-        : ""
-    )
+    .map((col, lvl) => {
+      if (!col) return "";
+      const stops = Array.isArray(col)
+        ? col.map((c, i) => `<stop offset="${i / (col.length - 1)}" stop-color="${c}"/>`).join("")
+        : `<stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="${col}"/>`;
+      return `<radialGradient id="g${lvl}" cx="35%" cy="30%" r="80%">${stops}</radialGradient>`;
+    })
     .join("");
 
   const grid = cells
@@ -248,10 +404,10 @@ function render(p, theme) {
     .join("");
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">
-<defs>${gradients}<clipPath id="clip"><rect x="${PAD - 2}" y="${PAD - 2}" width="${W * PITCH}" height="${ROWS * PITCH}"/></clipPath></defs>
+<defs>${gradients}<filter id="blur" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="2.5"/></filter><clipPath id="clip"><rect x="${PAD - 2}" y="${PAD - 2}" width="${W * PITCH}" height="${ROWS * PITCH}"/></clipPath></defs>
 <style>${css.join("")}</style>
 <g fill="${theme.empty}">${grid}</g>
-<g stroke="${theme.eggStroke}" stroke-width="0.8">${eggEls.join("")}</g>
+<g>${eggEls.join("")}</g>
 <g clip-path="url(#clip)">${segEls.join("")}</g>
 </svg>
 `;
@@ -266,11 +422,19 @@ if (!user) {
 }
 
 const cells = await loadCells(user);
-const p = plan(cells);
-validate(p);
+let p = plan(cells, "hunt");
+try {
+  validate(p);
+} catch (err) {
+  console.warn(`hunt route rejected (${err.message}); using sweep route`);
+  p = plan(cells, "sweep");
+  validate(p);
+}
 await mkdir(outDir, { recursive: true });
 await writeFile(join(outDir, "github-snake-dark.svg"), render(p, THEMES.dark));
 await writeFile(join(outDir, "github-snake.svg"), render(p, THEMES.light));
+const gold = [...p.eggs.values()].filter((c) => c.level >= GOLD_LEVEL).length;
 console.log(
-  `${p.eggs.size} eggs, snake grows ${START_LEN} -> ${p.maxLen}, loop ${(p.F * STEP).toFixed(1)}s -> ${outDir}/`
+  `${p.used} route: ${p.eggs.size} eggs (${gold} gold), snake grows ${START_LEN} -> ${p.maxLen}, ` +
+    `loop ${(p.F * STEP).toFixed(1)}s -> ${outDir}/`
 );
