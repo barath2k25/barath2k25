@@ -20,6 +20,6 @@
 <rect width="900" height="240" rx="12" fill="url(#f)"/>
 <rect width="160" height="240" fill="url(#s)"><animate attributeName="x" values="-160;900" dur="5s" repeatCount="indefinite"/></rect>
 <text x="450" y="112" text-anchor="middle" font-family="Courier New,monospace" font-size="46" font-weight="bold" fill="#39d353" filter="url(#glow)">BARATH S</text>
-<text x="450" y="150" text-anchor="middle" font-family="Courier New,monospace" font-size="16" fill="#c9d1d9">Full-Stack Developer | Backend Engineering | IT Student</text>
+<text x="450" y="150" text-anchor="middle" font-family="Courier New,monospace" font-size="16" fill="#c9d1d9">Full-Stack Developer | Cloud &amp; DevOps</text>
 <rect x="1" y="1" width="898" height="238" rx="12" fill="none" stroke="#26a641" stroke-opacity="0.5"/>
 </svg>
