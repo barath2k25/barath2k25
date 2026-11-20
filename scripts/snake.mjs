@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Egg Snake — renders the GitHub contribution calendar as eggs (white, or gold
 // on the busiest days) and a green snake that hunts them down, growing one
-// segment per egg.
+// segment for every GROW_EVERY eggs.
 //
 // Usage: node scripts/snake.mjs <github-user> <out-dir>
 // Uses GITHUB_TOKEN (GraphQL) when set, otherwise the public contributions page.
@@ -23,6 +23,7 @@ const CELL = 12; // cell size (px)
 const PITCH = 16; // cell + gap
 const PAD = 16; // outer padding
 const START_LEN = 3; // snake length before eating anything
+const GROW_EVERY = 2; // eggs eaten per extra segment
 const STEP = 0.1; // seconds per move
 const PAUSE = 16; // steps between the snake leaving and the loop restarting
 const GOLD_LEVEL = 4; // GitHub's darkest green = gold egg
@@ -106,7 +107,7 @@ async function loadCells(user) {
 
 // ---------------------------------------------------------------- routes
 // A route is the list of head positions P. The body at step t is the last
-// len(t) head positions, so the tail stays put on the step an egg is eaten.
+// len(t) head positions, so the tail stays put on the step the snake grows.
 // Every route starts at P[0] = (-2,-2), P[1] = (-1,0) (off-grid, top-left)
 // and ends with the head stepping off the right edge.
 
@@ -115,6 +116,7 @@ class Snake {
     this.W = W;
     this.P = [[-2, -2], [-1, 0]];
     this.len = START_LEN;
+    this.eaten = 0;
     this.left = new Set(eggKeys);
   }
   clone() {
@@ -122,6 +124,7 @@ class Snake {
     s.W = this.W;
     s.P = this.P.slice(-(this.len + 1));
     s.len = this.len;
+    s.eaten = this.eaten;
     s.left = new Set(this.left);
     return s;
   }
@@ -131,10 +134,14 @@ class Snake {
   onGrid([c, r]) {
     return c >= 0 && c < this.W && r >= 0 && r < ROWS;
   }
-  // grid cells the body occupies after the next move (tail leaves unless eating)
-  blocked(eating) {
+  // does stepping onto n make the snake longer? (then its tail stays put)
+  grows(n) {
+    return this.left.has(key(...n)) && (this.eaten + 1) % GROW_EVERY === 0;
+  }
+  // grid cells the body occupies after the next move (tail leaves unless growing)
+  blocked(growing) {
     const body = this.P.slice(-this.len);
-    const stays = eating || this.P.length < this.len ? body : body.slice(1);
+    const stays = growing || this.P.length < this.len ? body : body.slice(1);
     return new Set(stays.filter((p) => this.onGrid(p)).map((p) => key(...p)));
   }
   tail() {
@@ -142,11 +149,12 @@ class Snake {
   }
   legal(n, allowExit = false) {
     const inside = this.onGrid(n) || (allowExit && n[0] === this.W && n[1] >= 0 && n[1] < ROWS);
-    return inside && !this.blocked(this.left.has(key(...n))).has(key(...n));
+    return inside && !this.blocked(this.grows(n)).has(key(...n));
   }
   move(n) {
     this.P.push(n);
-    if (this.left.delete(key(...n))) this.len++;
+    if (this.grows(n)) this.len++;
+    if (this.left.delete(key(...n))) this.eaten++;
   }
   // BFS from the head; body cells (except the tail) are walls.
   bfs(isTarget, allowExit = false) {
@@ -273,7 +281,7 @@ function plan(cells, route) {
     if (eggs.has(k) && !eatStep.has(k)) eatStep.set(k, t);
   });
 
-  const maxLen = START_LEN + eggs.size;
+  const maxLen = START_LEN + Math.floor(eggs.size / GROW_EVERY);
   const F = N + maxLen + PAUSE; // frames per loop: tail must be fully off-grid before the seam
 
   // Walk off to the right, then hop above the grid to meet P[0] off-screen.
@@ -282,10 +290,10 @@ function plan(cells, route) {
   P.push([x + 1, -2]);
 
   const lenAt = new Array(F);
-  let len = START_LEN;
+  let eaten = 0;
   for (let t = 0; t < F; t++) {
-    if (t < N && eatStep.get(key(...P[t])) === t) len++;
-    lenAt[t] = len;
+    if (t < N && eatStep.get(key(...P[t])) === t) eaten++;
+    lenAt[t] = START_LEN + Math.floor(eaten / GROW_EVERY);
   }
 
   // step at which segment i first exists
