@@ -13,7 +13,7 @@
 - 🧑🏻‍💻 specialised in prompt engineering 
 - 💻 Full-stack developer
 - ☕️ java backend specialist
-- ⚙️ Exploring microservices, testing and debugging
+- ⚙️ Microservices, testing and debugging
 - ☁️ Currently into cloud and DevOps 
 
 <br clear="right"/>
